@@ -33,13 +33,13 @@ func TestWin(t *testing.T) {
 	ttt.Board[2][1] = tictactoe.O
 	ttt.Board[0][1] = tictactoe.X
 	ttt.Board[2][2] = tictactoe.O
-	c, err := ttt.CalcMove(tictactoe.X)
-	if err != nil {
-		t.Log("Could not calc wining tag")
+	err := ttt.CpuPlay(tictactoe.X)
+	if err != tictactoe.GameOverErr {
+		t.Log("Could not calc winning tag")
 		t.FailNow()
 	}
-	if c.X != 0 || c.Y != 0 {
-		t.Logf("Wrong wining coords calculated %d,%d is not 0,0", c.X, c.Y)
+	if ttt.Board[0][0] != tictactoe.X {
+		t.Log("Wrong winning coords calculated not 0,0")
 		t.FailNow()
 	}
 }
@@ -50,13 +50,13 @@ func TestCounterWin(t *testing.T) {
 	ttt.Board[2][1] = tictactoe.O
 	ttt.Board[0][1] = tictactoe.X
 	ttt.Board[2][2] = tictactoe.O
-	c, err := ttt.CalcMove(tictactoe.X)
+	err := ttt.CpuPlay(tictactoe.X)
 	if err != nil {
 		t.Log("Could not calc counter tag")
 		t.FailNow()
 	}
-	if c.X != 2 || c.Y != 0 {
-		t.Logf("Wrong counter coords calculated %d,%d is not 2,0", c.X, c.Y)
+	if ttt.Board[2][0] != tictactoe.X {
+		t.Logf("Wrong counter coords calculated not 2,0")
 		t.FailNow()
 	}
 }

@@ -112,7 +112,23 @@ func (t *TicTacToe) checkGameStatus(tag TAG) error {
 	return nil
 }
 
-func (t *TicTacToe) CalcMove(tag TAG) (*Coordinate, error) {
+func (t *TicTacToe) CpuPlay(cpuTag TAG) error {
+	c, err := t.calcMove(cpuTag)
+	if err != nil {
+		fmt.Printf("%v", err)
+		return err
+	}
+	err = t.Tag(c.X, c.Y, cpuTag)
+	if err != nil {
+		if err == GameOverErr {
+			return err
+		}
+		fmt.Printf("Oops ... %v", err)
+	}
+	return nil
+}
+
+func (t *TicTacToe) calcMove(tag TAG) (*Coordinate, error) {
 	candidates := map[*Coordinate]int{}
 	for _, l := range lanes {
 		myTag := 0
