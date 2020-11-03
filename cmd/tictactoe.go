@@ -45,6 +45,10 @@ func main() {
 		}
 		err = ttt.Tag(x, y, playerTag)
 		if err != nil {
+			if err == tictactoe.GameOverErr {
+				fmt.Println("You won!")
+				break
+			}
 			fmt.Printf("Dude ... %v\n", err)
 			continue
 		}
@@ -55,6 +59,15 @@ func main() {
 			fmt.Printf("%v", err)
 			break
 		}
-		ttt.Tag(c.X, c.Y, cpuTag)
+		err = ttt.Tag(c.X, c.Y, cpuTag)
+		if err != nil {
+			if err == tictactoe.GameOverErr {
+				ttt.Print()
+				fmt.Println("You lost!")
+				break
+			}
+			fmt.Printf("Oops ... %v", err)
+			break
+		}
 	}
 }

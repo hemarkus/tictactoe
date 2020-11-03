@@ -6,9 +6,9 @@ import (
 )
 
 type TicTacToe struct {
-	Board [3][3]TAG
-	Score [3][3]uint
-	Move  uint
+	Board  [3][3]TAG
+	Move   uint
+	Winner TAG
 }
 
 type Coordinate struct {
@@ -21,6 +21,8 @@ type Lane struct {
 }
 
 var lanes [8]Lane
+
+var GameOverErr error = errors.New("Game over")
 
 func init() {
 	lanes = initLanes()
@@ -71,18 +73,42 @@ const (
 
 func NewTicTacToe() *TicTacToe {
 	return &TicTacToe{
-		Board: [3][3]TAG{},
-		Score: [3][3]uint{},
-		Move:  0,
+		Board:  [3][3]TAG{},
+		Move:   0,
+		Winner: NO,
 	}
 }
 
 func (t *TicTacToe) Tag(x uint, y uint, tag TAG) error {
+	if t.Winner != NO {
+		return GameOverErr
+	}
 	if t.Board[x][y] != NO {
 		return errors.New("Already set")
 	}
 	t.Board[x][y] = tag
+	err := t.checkGameStatus(tag)
+	if err != nil {
+		return err
+	}
 	t.Move++
+	return nil
+}
+
+func (t *TicTacToe) checkGameStatus(tag TAG) error {
+	for _, l := range lanes {
+		myTag := 0
+		for _, c := range l.Lane {
+			switch t.Board[c.X][c.Y] {
+			case tag:
+				myTag++
+			}
+		}
+		if myTag == 3 {
+			t.Winner = tag
+			return GameOverErr
+		}
+	}
 	return nil
 }
 
@@ -130,7 +156,7 @@ func (t *TicTacToe) CalcMove(tag TAG) (*Coordinate, error) {
 		}
 	}
 	if result == nil {
-		return nil, errors.New("Game Over")
+		return nil, GameOverErr
 	}
 	return result, nil
 }
