@@ -35,12 +35,54 @@ func TestWin(t *testing.T) {
 	ttt.Board[2][2] = tictactoe.O
 	err := ttt.CpuPlay(tictactoe.X)
 	if err != tictactoe.GameOverErr {
-		t.Log("Could not calc winning tag")
+		t.Log("failed to calc winning tag")
 		t.FailNow()
 	}
 	if ttt.Board[0][0] != tictactoe.X {
-		t.Log("Wrong winning coords calculated not 0,0")
+		t.Log("failed calculating winning coords at 0,0")
 		t.FailNow()
+	}
+}
+
+func TestWin2(t *testing.T) {
+	ttt := tictactoe.NewTicTacToe()
+	ttt.Board[0][0] = tictactoe.X
+	ttt.Board[0][2] = tictactoe.X
+	ttt.Board[1][1] = tictactoe.X
+	ttt.Board[1][0] = tictactoe.O
+	ttt.Board[2][2] = tictactoe.O
+	err := ttt.CpuPlay(tictactoe.O)
+	if err != nil {
+		t.Logf("%v", ttt.Board)
+		t.Log("failed to calculate valid move")
+		t.FailNow()
+	}
+	err = ttt.CpuPlay(tictactoe.X)
+	if err != tictactoe.GameOverErr {
+		t.Log("failed calculating winning coords at 0,1")
+		t.FailNow()
+	}
+}
+
+func TestCPUvsCPU(t *testing.T) {
+	ttt := tictactoe.NewTicTacToe()
+	for ttt.Move < 10 {
+		err := ttt.CpuPlay(tictactoe.O)
+		if err == tictactoe.GameOverErr {
+			if ttt.Winner != tictactoe.NO {
+				t.Log("CPU match ended uneven")
+				t.FailNow()
+			}
+			break
+		}
+		err = ttt.CpuPlay(tictactoe.X)
+		if err == tictactoe.GameOverErr {
+			if ttt.Winner != tictactoe.NO {
+				t.Log("CPU match ended uneven")
+				t.FailNow()
+			}
+			break
+		}
 	}
 }
 
