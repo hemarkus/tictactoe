@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"markus.tictactoe/pkg/tictactoe"
 )
@@ -13,69 +14,66 @@ func printIndexedBoard() {
 }
 
 func main() {
-	ttt := tictactoe.NewTicTacToe()
-	playerTag := tictactoe.NO
-	var cpuTag tictactoe.TAG
-	for playerTag == tictactoe.NO {
+	cpuOpponent := true
+	chosen := false
+	var answer string
+	for !chosen {
+		fmt.Println("Play against CPU (Y/n)?")
+		fmt.Scanf("%s", &answer)
+		switch answer {
+		case "n", "N":
+			cpuOpponent = false
+			chosen = true
+			break
+		case "y", "Y", "":
+			chosen = true
+			break
+		default:
+			fmt.Println("Yes or no. There is nothing in between.")
+		}
+	}
+
+	playerOneTag := tictactoe.NO
+	var playerTwoTag tictactoe.TAG
+	for playerOneTag == tictactoe.NO {
 		var tag string
 
 		fmt.Println("Choose your tag [X|O]: ")
 		fmt.Scanf("%s", &tag)
 		switch tag {
 		case "O":
-			playerTag = tictactoe.O
-			cpuTag = tictactoe.X
+			playerOneTag = tictactoe.O
+			playerTwoTag = tictactoe.X
 		case "X":
-			playerTag = tictactoe.X
-			cpuTag = tictactoe.O
+			playerOneTag = tictactoe.X
+			playerTwoTag = tictactoe.O
 		}
 	}
+
+	p1 := tictactoe.NewHumanPlayer(playerOneTag)
+	var p2 tictactoe.Player
+	switch cpuOpponent {
+	case true:
+		p2 = tictactoe.NewCPUPlayer(playerTwoTag)
+	case false:
+		p2 = tictactoe.NewHumanPlayer(playerTwoTag)
+	}
+	ttt := tictactoe.NewTicTacToe(p1, p2)
 
 	printIndexedBoard()
 
-	for {
-		fmt.Println("Place tag at index: ")
-		var index uint
-		_, err := fmt.Scanf("%d", &index)
-		if err != nil {
-			fmt.Printf("Please ... %v\n", err)
-			continue
-		}
-
-		c, err := tictactoe.IndexToCoord(uint(index))
-		if err != nil {
-			fmt.Printf("Please ... %v\n", err)
-			continue
-		}
-
-		err = ttt.Tag(c.X, c.Y, playerTag)
-		if err != nil {
-			if err == tictactoe.GameOverErr {
-				break
-			}
-			fmt.Printf("Dude ... %v\n", err)
-			continue
-		}
-		ttt.Print()
-
-		err = ttt.CpuPlay(cpuTag)
-		if err != nil {
-			if err == tictactoe.GameOverErr {
-				break
-			}
-			fmt.Printf("Oops ... %v\n", err)
-			break
-		}
-
-		ttt.Print()
+	err := ttt.Run()
+	if err != nil {
+		fmt.Println("Game failed nobody wins.")
+		os.Exit(1)
 	}
+
 	switch ttt.Winner {
 	case tictactoe.NO:
 		fmt.Println("Even")
-	case cpuTag:
-		fmt.Println("You lost!")
-	case playerTag:
-		fmt.Println("You won!")
+	case playerTwoTag:
+		fmt.Println("Player 2 won!")
+	case playerOneTag:
+		fmt.Println("Player 1 won!")
 	}
-	ttt.Print()
 }
