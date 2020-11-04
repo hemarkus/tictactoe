@@ -104,7 +104,6 @@ func (t *TicTacToe) checkGameStatus(tag TAG) error {
 func (t *TicTacToe) CpuPlay(cpuTag TAG) error {
 	c, err := t.calcMove(cpuTag)
 	if err != nil {
-		fmt.Printf("%v", err)
 		return err
 	}
 	err = t.Tag(c.X, c.Y, cpuTag)
