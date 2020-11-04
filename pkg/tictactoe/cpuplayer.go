@@ -39,6 +39,12 @@ func (cpu *CPUPlayer) RequestMove(board [3][3]TAG) (*Coordinate, error) {
 				laneCandidates = append(laneCandidates, laneCandidates[0])
 			}
 		}
+
+		// weight lanes with at least one own tag
+		if (myTag == 1) && (otherTag == 0) {
+			laneCandidates = append(laneCandidates, laneCandidates[0])
+		}
+
 		for _, lc := range laneCandidates {
 			candidates[lc] = candidates[lc] + 1
 		}
