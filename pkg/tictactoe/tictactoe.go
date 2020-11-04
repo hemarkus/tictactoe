@@ -16,11 +16,7 @@ type Coordinate struct {
 	Y uint
 }
 
-type Lane struct {
-	Lane [3]Coordinate
-}
-
-var lanes [8]Lane
+var lanes [][]*Coordinate
 
 var GameOverErr error = errors.New("Game over")
 
@@ -28,38 +24,31 @@ func init() {
 	lanes = initLanes()
 }
 
-func initLanes() [8]Lane {
-	lanes := [8]Lane{}
+func initLanes() [][]*Coordinate {
+	// init all coordinates
+	coords := []*Coordinate{}
 	for i := 0; i < 3; i++ {
-		lanes[i] = Lane{
-			[3]Coordinate{
-				{uint(i), 0},
-				{uint(i), 1},
-				{uint(i), 2},
-			},
-		}
-		lanes[3+i] = Lane{
-			[3]Coordinate{
-				{0, uint(i)},
-				{1, uint(i)},
-				{2, uint(i)},
-			},
+		for j := 0; j < 3; j++ {
+			coords = append(coords, &Coordinate{X: uint(i), Y: uint(j)})
 		}
 	}
-	lanes[6] = Lane{
-		[3]Coordinate{
-			{0, 0},
-			{1, 1},
-			{2, 2},
-		},
+
+	lanes := [][]*Coordinate{
+		// horizontal
+		coords[0:3],
+		coords[3:6],
+		coords[6:],
+
+		// vertical
+		{coords[0], coords[3], coords[6]},
+		{coords[1], coords[4], coords[7]},
+		{coords[2], coords[5], coords[8]},
+
+		// diagonal
+		{coords[0], coords[4], coords[8]},
+		{coords[2], coords[4], coords[6]},
 	}
-	lanes[7] = Lane{
-		[3]Coordinate{
-			{0, 2},
-			{1, 1},
-			{2, 0},
-		},
-	}
+
 	return lanes
 }
 
@@ -98,7 +87,7 @@ func (t *TicTacToe) Tag(x uint, y uint, tag TAG) error {
 func (t *TicTacToe) checkGameStatus(tag TAG) error {
 	for _, l := range lanes {
 		myTag := 0
-		for _, c := range l.Lane {
+		for _, c := range l {
 			switch t.Board[c.X][c.Y] {
 			case tag:
 				myTag++
@@ -134,12 +123,12 @@ func (t *TicTacToe) calcMove(tag TAG) (*Coordinate, error) {
 		myTag := 0
 		otherTag := 0
 		laneCandidates := []*Coordinate{}
-		for _, c := range l.Lane {
+		for _, c := range l {
 			switch t.Board[c.X][c.Y] {
 			case tag:
 				myTag++
 			case NO:
-				laneCandidates = append(laneCandidates, &Coordinate{c.X, c.Y})
+				laneCandidates = append(laneCandidates, c)
 			default:
 				otherTag++
 			}
