@@ -76,4 +76,5 @@ func main() {
 	case playerOneTag:
 		fmt.Println("Player 1 won!")
 	}
+	ttt.Print()
 }

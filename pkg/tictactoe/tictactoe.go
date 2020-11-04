@@ -78,7 +78,8 @@ func NewTicTacToe(p1 Player, p2 Player) *TicTacToe {
 func (t *TicTacToe) Run() error {
 	t.Print()
 	for !t.GameOver {
-		for _, p := range []Player{t.PlayerOne, t.PlayerTwo} {
+		for i, p := range []Player{t.PlayerOne, t.PlayerTwo} {
+			fmt.Printf("Player %d\n", i+1)
 			c, err := p.RequestMove(t.Board)
 			if err != nil {
 				if err == GameOverErr {
@@ -97,7 +98,6 @@ func (t *TicTacToe) Run() error {
 			}
 			t.Print()
 		}
-		t.Print()
 	}
 	return nil
 }
