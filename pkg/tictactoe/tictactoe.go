@@ -136,14 +136,14 @@ func (t *TicTacToe) calcMove(tag TAG) (*Coordinate, error) {
 			// remove lane
 			continue
 		}
-		// win or rescue
+		// weight win and rescue
 		if myTag == 2 {
-			for i := 0; i < 10; i++ {
+			for i := 0; i < 16; i++ {
 				laneCandidates = append(laneCandidates, laneCandidates[0])
 			}
 		}
 		if otherTag == 2 {
-			for i := 0; i < 5; i++ {
+			for i := 0; i < 8; i++ {
 				laneCandidates = append(laneCandidates, laneCandidates[0])
 			}
 		}
