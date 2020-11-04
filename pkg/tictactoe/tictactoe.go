@@ -17,6 +17,7 @@ type Coordinate struct {
 }
 
 var lanes [][]*Coordinate
+var coords []*Coordinate
 
 var GameOverErr error = errors.New("Game over")
 
@@ -26,7 +27,7 @@ func init() {
 
 func initLanes() [][]*Coordinate {
 	// init all coordinates
-	coords := []*Coordinate{}
+	coords = []*Coordinate{}
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
 			coords = append(coords, &Coordinate{X: uint(i), Y: uint(j)})

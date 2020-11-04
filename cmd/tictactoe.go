@@ -6,6 +6,12 @@ import (
 	"markus.tictactoe/pkg/tictactoe"
 )
 
+func printIndexedBoard() {
+	for i := 0; i < 9; i += 3 {
+		fmt.Printf("|%d|%d|%d|\n", i, i+1, i+2)
+	}
+}
+
 func main() {
 	ttt := tictactoe.NewTicTacToe()
 	playerTag := tictactoe.NO
@@ -13,7 +19,7 @@ func main() {
 	for playerTag == tictactoe.NO {
 		var tag string
 
-		fmt.Println("Choose tag: ")
+		fmt.Println("Choose your tag [X|O]: ")
 		fmt.Scanf("%s", &tag)
 		switch tag {
 		case "O":
@@ -25,25 +31,24 @@ func main() {
 		}
 	}
 
+	printIndexedBoard()
+
 	for {
-		ttt.Print()
-		fmt.Println("Tag: ")
-		var x uint
-		var y uint
-		i, err := fmt.Scanf("%d,%d", &x, &y)
+		fmt.Println("Place tag at index: ")
+		var index uint
+		_, err := fmt.Scanf("%d", &index)
 		if err != nil {
 			fmt.Printf("Please ... %v\n", err)
 			continue
 		}
-		if i != 2 {
-			fmt.Println("Come on 2 dimensions")
+
+		c, err := tictactoe.IndexToCoord(uint(index))
+		if err != nil {
+			fmt.Printf("Please ... %v\n", err)
 			continue
 		}
-		if x < 0 || x > 2 || y < 0 || y > 2 {
-			fmt.Println("Aren't you a programmer? The very first digit is 0")
-			continue
-		}
-		err = ttt.Tag(x, y, playerTag)
+
+		err = ttt.Tag(c.X, c.Y, playerTag)
 		if err != nil {
 			if err == tictactoe.GameOverErr {
 				break
@@ -61,6 +66,8 @@ func main() {
 			fmt.Printf("Oops ... %v\n", err)
 			break
 		}
+
+		ttt.Print()
 	}
 	switch ttt.Winner {
 	case tictactoe.NO:
