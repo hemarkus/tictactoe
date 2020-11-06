@@ -1,6 +1,8 @@
 package tictactoe
 
-import "errors"
+import (
+	"errors"
+)
 
 func IndexToCoord(index uint) (*Coordinate, error) {
 	if index >= uint(len(coords)) {

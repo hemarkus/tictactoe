@@ -23,6 +23,7 @@ var lanes [][]*Coordinate
 var coords []*Coordinate
 
 var GameOverErr error = errors.New("Game over")
+var AlreadySetErr error = errors.New("already set")
 
 func init() {
 	lanes = initLanes()
@@ -77,27 +78,39 @@ func NewTicTacToe(p1 Player, p2 Player) *TicTacToe {
 
 func (t *TicTacToe) Run() error {
 	t.Print()
+	currentPlayer := t.PlayerOne
 	for !t.GameOver {
-		for i, p := range []Player{t.PlayerOne, t.PlayerTwo} {
-			fmt.Printf("Player %d\n", i+1)
-			c, err := p.RequestMove(t.Board)
-			if err != nil {
-				if err == GameOverErr {
-					t.GameOver = true
-					break
-				}
-				return err
+		fmt.Printf("%s: \n", currentPlayer.GetName())
+		c, err := currentPlayer.RequestMove(t.Board)
+		if err != nil {
+			if err == GameOverErr {
+				t.GameOver = true
+				break
 			}
-			err = t.tag(c, p.GetTag())
-			if err != nil {
-				if err == GameOverErr {
-					t.win(p)
-					break
-				}
-				return err
-			}
-			t.Print()
+			return err
 		}
+
+		err = t.tag(c, currentPlayer.GetTag())
+		if err != nil {
+			switch err {
+			case AlreadySetErr:
+				fmt.Printf("Oops ... %v\n", err)
+				continue
+			case GameOverErr:
+				t.win(currentPlayer)
+				return nil
+			}
+			return err
+		}
+		t.Print()
+
+		switch currentPlayer {
+		case t.PlayerOne:
+			currentPlayer = t.PlayerTwo
+		case t.PlayerTwo:
+			currentPlayer = t.PlayerOne
+		}
+
 	}
 	return nil
 }
@@ -107,7 +120,7 @@ func (t *TicTacToe) tag(coordinate *Coordinate, tag TAG) error {
 		return GameOverErr
 	}
 	if t.Board[coordinate.X][coordinate.Y] != NO {
-		return errors.New("Already set")
+		return AlreadySetErr
 	}
 	t.Board[coordinate.X][coordinate.Y] = tag
 	err := t.checkGameStatus(tag)

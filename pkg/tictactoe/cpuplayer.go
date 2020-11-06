@@ -5,7 +5,7 @@ type CPUPlayer struct {
 }
 
 func NewCPUPlayer(tag TAG) *CPUPlayer {
-	return &CPUPlayer{GenericPlayer{tag: tag}}
+	return &CPUPlayer{GenericPlayer{tag: tag, name: "CPU"}}
 }
 
 func (cpu *CPUPlayer) RequestMove(board [3][3]TAG) (*Coordinate, error) {

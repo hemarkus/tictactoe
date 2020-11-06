@@ -15,56 +15,48 @@ func printIndexedBoard() {
 
 func main() {
 	cpuOpponent := true
-	chosen := false
-	var answer string
-	for !chosen {
-		fmt.Println("Play against CPU (Y/n)?")
-		fmt.Scanf("%s", &answer)
-		switch answer {
-		case "n", "N":
-			cpuOpponent = false
-			chosen = true
-			break
-		case "y", "Y", "":
-			chosen = true
-			break
-		default:
-			fmt.Println("Yes or no. There is nothing in between.")
-		}
+	cpuOption, err := tictactoe.StringOptionDialog("Play against CPU?", []string{"y", "n"})
+	if err != nil {
+		panic(err)
+	}
+	switch cpuOption {
+	case "n", "N":
+		cpuOpponent = false
+	case "y", "Y", "":
+		cpuOpponent = true
+	default:
+		fmt.Println("Yes or no. There is nothing in between.")
 	}
 
-	playerOneTag := tictactoe.NO
-	var playerTwoTag tictactoe.TAG
-	for playerOneTag == tictactoe.NO {
-		var tag string
-
-		fmt.Println("Choose your tag [X|O]: ")
-		fmt.Scanf("%s", &tag)
-		switch tag {
-		case "O":
-			playerOneTag = tictactoe.O
-			playerTwoTag = tictactoe.X
-		case "X":
-			playerOneTag = tictactoe.X
-			playerTwoTag = tictactoe.O
-		}
+	tagOption, err := tictactoe.StringOptionDialog("Choose your tag ", []string{"X", "O"})
+	if err != nil {
+		panic(err)
+	}
+	var playerOneTag, playerTwoTag tictactoe.TAG
+	switch tagOption {
+	case "O":
+		playerOneTag = tictactoe.O
+		playerTwoTag = tictactoe.X
+	case "X":
+		playerOneTag = tictactoe.X
+		playerTwoTag = tictactoe.O
 	}
 
-	p1 := tictactoe.NewHumanPlayer(playerOneTag)
+	p1 := tictactoe.NewConsolePlayer(playerOneTag, "Player One")
 	var p2 tictactoe.Player
 	switch cpuOpponent {
 	case true:
 		p2 = tictactoe.NewCPUPlayer(playerTwoTag)
 	case false:
-		p2 = tictactoe.NewHumanPlayer(playerTwoTag)
+		p2 = tictactoe.NewConsolePlayer(playerTwoTag, "Player Two")
 	}
 	ttt := tictactoe.NewTicTacToe(p1, p2)
 
 	printIndexedBoard()
 
-	err := ttt.Run()
+	err = ttt.Run()
 	if err != nil {
-		fmt.Println("Game failed nobody wins.")
+		fmt.Printf("game failed nobody wins: %v", err)
 		os.Exit(1)
 	}
 
@@ -72,9 +64,9 @@ func main() {
 	case tictactoe.NO:
 		fmt.Println("Even")
 	case playerTwoTag:
-		fmt.Println("Player 2 won!")
+		fmt.Printf("%s won!\n", p2.GetName())
 	case playerOneTag:
-		fmt.Println("Player 1 won!")
+		fmt.Printf("%s won!\n", p1.GetName())
 	}
 	ttt.Print()
 }
