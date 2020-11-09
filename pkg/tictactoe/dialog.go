@@ -4,17 +4,25 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"reflect"
 	"strconv"
 	"strings"
 )
 
-func genericDialog(prompt string, defaultResult interface{}, result interface{}) error {
+var InconsistantTypesProvidedErr = errors.New("inconsistant types provided")
+var InvalidCallByValue = errors.New("invalid call by value")
+
+func genericConsoleDialog(prompt string, defaultResult interface{}, result interface{}) error {
+	return genericDialog(prompt, defaultResult, result, os.Stdin)
+}
+
+func genericDialog(prompt string, defaultResult interface{}, result interface{}, reader io.Reader) error {
 	resVal := reflect.ValueOf(result)
 	// we don't return anything, so result must point to something writeable
 	if resVal.Kind() != reflect.Ptr {
-		return errors.New("invalid call by value")
+		return InvalidCallByValue
 	}
 	for resVal.Kind() == reflect.Ptr || resVal.Kind() == reflect.Interface {
 		resVal = resVal.Elem()
@@ -30,14 +38,14 @@ func genericDialog(prompt string, defaultResult interface{}, result interface{})
 		defKind := defVal.Kind()
 
 		if resKind != defKind {
-			return errors.New("inconsistant types provided")
+			return InconsistantTypesProvidedErr
 		}
 	}
 
 	var response string
 	for response == "" {
 		fmt.Printf("%s: ", prompt)
-		reader := bufio.NewReader(os.Stdin)
+		reader := bufio.NewReader(reader)
 		var err error
 		response, err = reader.ReadString('\n')
 		if err != nil {
@@ -68,7 +76,7 @@ func genericDialog(prompt string, defaultResult interface{}, result interface{})
 
 func StringDialogDefault(prompt string, defaultResult string) (string, error) {
 	var result string
-	err := genericDialog(prompt, &defaultResult, &result)
+	err := genericConsoleDialog(prompt, &defaultResult, &result)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +85,7 @@ func StringDialogDefault(prompt string, defaultResult string) (string, error) {
 
 func UintDialogDefault(prompt string, defaultResult uint) (uint, error) {
 	var result uint
-	err := genericDialog(prompt, &defaultResult, &result)
+	err := genericConsoleDialog(prompt, &defaultResult, &result)
 	if err != nil {
 		return 0, err
 	}
@@ -86,7 +94,7 @@ func UintDialogDefault(prompt string, defaultResult uint) (uint, error) {
 
 func UintDialog(prompt string) (uint, error) {
 	var result uint
-	err := genericDialog(prompt, nil, &result)
+	err := genericConsoleDialog(prompt, nil, &result)
 	if err != nil {
 		return 0, err
 	}
@@ -97,7 +105,7 @@ func StringOptionDialog(prompt string, options []string) (string, error) {
 	var result string
 	for {
 		newPrompt := fmt.Sprintf("%s [%s]", prompt, strings.Join(options, ", "))
-		err := genericDialog(newPrompt, options[0], &result)
+		err := genericConsoleDialog(newPrompt, options[0], &result)
 		if err != nil {
 			return "", err
 		}
